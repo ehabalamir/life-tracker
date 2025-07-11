@@ -1,0 +1,2146 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>متتبع الحياة الشامل - النسخة النهائية</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+
+        .daily-overview {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 15px;
+            color: white;
+            text-align: center;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            padding: 12px;
+            border-radius: 50%;
+            color: white;
+            cursor: pointer;
+            font-size: 22px;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .reminder-popup {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            z-index: 1000;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            max-width: 300px;
+        }
+
+        .reminder-popup.show {
+            transform: translateX(0);
+        }
+
+        .reminder-close {
+            position: absolute;
+            top: 5px;
+            right: 10px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .weekly-goals {
+            background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .goals-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .goal-item {
+            background: rgba(255,255,255,0.2);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .theme-toggle:hover {
+            background: rgba(255,255,255,0.3);
+            transform: scale(1.1);
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .section-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .section-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            color: #333;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+            font-size: 15px;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            background: white;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .time-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .weight-height-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .rating-group {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .rating-item {
+            text-align: center;
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        .rating-item label {
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+
+        .rating-slider {
+            width: 100%;
+            margin: 8px 0;
+        }
+
+        .rating-display {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #667eea;
+            margin: 3px 0;
+        }
+
+        .rating-emoji {
+            font-size: 1.2rem;
+        }
+
+        .meal-tracker {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .meal-item {
+            text-align: center;
+            background: #f8f9fa;
+            padding: 15px 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .meal-item:hover {
+            background: #e3f2fd;
+        }
+
+        .meal-item.selected {
+            background: #667eea;
+            color: white;
+            border-color: #5a6fd8;
+        }
+
+        .meal-emoji {
+            font-size: 2rem;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .habit-tracker {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+
+        .habit-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .habit-item:hover {
+            background: #e3f2fd;
+        }
+
+        .habit-item.checked {
+            background: #667eea;
+            color: white;
+        }
+
+        .habit-checkbox {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin: 15px 0 5px 0;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ff4757 0%, #ff3742 100%);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #00b894 0%, #00cec9 100%);
+        }
+
+        .daily-score {
+            background: linear-gradient(135deg, #00b894 0%, #00cec9 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 20px;
+            text-align: center;
+            margin: 20px 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .score-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
+
+        .score-breakdown {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .score-item {
+            background: rgba(255,255,255,0.1);
+            padding: 10px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .full-width-section {
+            grid-column: 1 / -1;
+        }
+
+        .stats-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .stat-number {
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .insights-section {
+            background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+            padding: 25px;
+            border-radius: 20px;
+            margin: 20px 0;
+        }
+
+        .insight-item {
+            margin: 12px 0;
+            padding: 12px;
+            background: rgba(255,255,255,0.8);
+            border-radius: 10px;
+            border-right: 4px solid #667eea;
+        }
+
+        .challenges-section {
+            background: linear-gradient(135deg, #fd79a8 0%, #e84393 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 20px;
+            margin: 20px 0;
+        }
+
+        .challenge-item {
+            margin: 10px 0;
+            padding: 10px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+        }
+
+        .data-entry {
+            background: linear-gradient(135deg, #a29bfe 0%, #6c5ce7 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 15px 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .data-entry-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .data-entry-content {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .chart-container {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            height: 350px;
+            position: relative;
+        }
+
+        .alert {
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            animation: slideIn 0.5s ease;
+            font-weight: bold;
+        }
+
+        .alert-success {
+            background: linear-gradient(135deg, #00b894 0%, #00cec9 100%);
+            color: white;
+        }
+
+        .alert-warning {
+            background: linear-gradient(135deg, #fdcb6e 0%, #e17055 100%);
+            color: white;
+        }
+
+        .bmi-display {
+            background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .bmi-number {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .achievements-badge {
+            background: linear-gradient(135deg, #fdcb6e 0%, #e17055 100%);
+            color: white;
+            padding: 10px;
+            border-radius: 50px;
+            text-align: center;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+
+        /* Dark Mode */
+        .dark-mode {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+        }
+
+        .dark-mode .section-card {
+            background: rgba(44, 62, 80, 0.9);
+            color: white;
+        }
+
+        .dark-mode .section-title {
+            color: white;
+            border-bottom-color: #74b9ff;
+        }
+
+        .dark-mode input, .dark-mode textarea, .dark-mode select {
+            background: #34495e;
+            color: white;
+            border-color: #5a6c7d;
+        }
+
+        .dark-mode .rating-item, .dark-mode .meal-item, .dark-mode .habit-item {
+            background: #34495e;
+            color: white;
+        }
+
+        .dark-mode .stat-card {
+            background: #34495e;
+            color: white;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .notification-badge {
+            animation: pulse 2s infinite;
+        }
+
+        @media (max-width: 1200px) {
+            .main-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .rating-group {
+                grid-template-columns: 1fr;
+            }
+            
+            .meal-tracker {
+                grid-template-columns: 1fr;
+            }
+            
+            .habit-tracker {
+                grid-template-columns: 1fr;
+            }
+            
+            .score-breakdown {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .weight-height-inputs {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .progress-indicator {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.5s ease;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+    
+    <!-- التذكيرات الذكية -->
+    <div class="reminder-popup" id="reminderPopup">
+        <button class="reminder-close" onclick="closeReminder()">×</button>
+        <div id="reminderText"></div>
+        <button class="btn btn-success" onclick="handleReminderAction()" style="margin-top: 10px; padding: 8px 15px; font-size: 14px;">حسناً</button>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1>🌟 متتبع الحياة الشامل</h1>
+            <p class="subtitle">نظام ذكي متكامل لتتبع وتحسين كل جانب من جوانب حياتك</p>
+            <div class="daily-overview" id="dailyOverview">
+                <strong>مرحباً! ابدأ يومك بتسجيل بياناتك الشخصية</strong>
+            </div>
+        </div>
+
+        <!-- أهداف الأسبوع -->
+        <div class="weekly-goals">
+            <h3>🎯 أهداف الأسبوع الحالي</h3>
+            <div class="goals-grid">
+                <div class="goal-item">
+                    <input type="text" id="weeklyGoal1" placeholder="هدف الأسبوع الأول" style="background: rgba(255,255,255,0.2); border: none; color: white;">
+                </div>
+                <div class="goal-item">
+                    <input type="text" id="weeklyGoal2" placeholder="هدف الأسبوع الثاني" style="background: rgba(255,255,255,0.2); border: none; color: white;">
+                </div>
+                <div class="goal-item">
+                    <input type="text" id="weeklyGoal3" placeholder="هدف الأسبوع الثالث" style="background: rgba(255,255,255,0.2); border: none; color: white;">
+                </div>
+            </div>
+            <button class="btn btn-secondary" onclick="saveWeeklyGoals()" style="margin-top: 15px;">💾 حفظ أهداف الأسبوع</button>
+        </div>
+
+        <!-- النتيجة اليومية -->
+        <div class="daily-score" id="dailyScoreCard">
+            <h3>🏆 نتيجة اليوم</h3>
+            <div class="score-circle" id="totalScore">0%</div>
+            <div class="progress-indicator">
+                <div class="progress-fill" id="mainProgress" style="width: 0%"></div>
+            </div>
+            <div class="score-breakdown">
+                <div class="score-item">
+                    <div><strong id="sleepScore">0</strong></div>
+                    <div>😴 النوم</div>
+                </div>
+                <div class="score-item">
+                    <div><strong id="healthScore">0</strong></div>
+                    <div>🏃‍♂️ الصحة</div>
+                </div>
+                <div class="score-item">
+                    <div><strong id="productivityScore">0</strong></div>
+                    <div>⚡ الإنتاجية</div>
+                </div>
+                <div class="score-item">
+                    <div><strong id="wellbeingScore">0</strong></div>
+                    <div>😊 الراحة النفسية</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-grid">
+            <!-- قسم البيانات الأساسية -->
+            <div class="section-card">
+                <h3 class="section-title">📋 البيانات الأساسية</h3>
+                
+                <div class="input-group">
+                    <label>📅 التاريخ:</label>
+                    <input type="date" id="date">
+                </div>
+
+                <div class="input-group">
+                    <label>⚖️ الوزن والطول اليوم:</label>
+                    <div class="weight-height-inputs">
+                        <input type="number" id="weight" min="30" max="200" step="0.1" placeholder="الوزن (كجم)">
+                        <input type="number" id="height" min="100" max="250" step="0.1" placeholder="الطول (سم)">
+                    </div>
+                </div>
+
+                <div class="bmi-display" id="bmiDisplay" style="display: none;">
+                    <div class="bmi-number" id="bmiValue">0</div>
+                    <div id="bmiCategory">BMI</div>
+                </div>
+
+                <div class="input-group">
+                    <label>🛏️ أوقات النوم:</label>
+                    <div class="time-inputs">
+                        <input type="time" id="bedTime" placeholder="وقت النوم">
+                        <input type="time" id="wakeTime" placeholder="وقت الاستيقاظ">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>💤 جودة النوم (1-10):</label>
+                    <input type="range" id="sleepQuality" min="1" max="10" value="5">
+                    <div style="text-align: center;">
+                        <span id="sleepQualityValue">5</span> - <span id="sleepQualityEmoji">😴</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- قسم التحديات والضغوط -->
+            <div class="section-card">
+                <h3 class="section-title">💪 التحديات والضغوط</h3>
+                
+                <div class="input-group">
+                    <label>📊 مستوى التوتر/الضغط (1-10):</label>
+                    <input type="range" id="stressLevel" min="1" max="10" value="5">
+                    <div style="text-align: center;">
+                        <span id="stressValue">5</span> - <span id="stressEmoji">😐</span>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>🚧 أكبر تحدي واجهته اليوم:</label>
+                    <textarea id="biggestChallenge" rows="2" placeholder="ما التحدي الأصعب الذي واجهته؟"></textarea>
+                </div>
+
+                <div class="input-group">
+                    <label>🛠️ كيف تعاملت معه؟</label>
+                    <textarea id="challengeResponse" rows="2" placeholder="كيف تعاملت مع هذا التحدي؟"></textarea>
+                </div>
+
+                <div class="input-group">
+                    <label>🌟 مستوى الإبداع اليوم (1-10):</label>
+                    <input type="range" id="creativityLevel" min="1" max="10" value="5">
+                    <div style="text-align: center;">
+                        <span id="creativityValue">5</span> - <span id="creativityEmoji">💡</span>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>🚀 هل خرجت من منطقة الراحة؟</label>
+                    <select id="comfortZone">
+                        <option value="0">لا، بقيت في منطقة الراحة</option>
+                        <option value="1">خطوة صغيرة خارج منطقة الراحة</option>
+                        <option value="2" selected>خطوة متوسطة</option>
+                        <option value="3">خطوة كبيرة خارج منطقة الراحة</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- قسم الطعام والشراب -->
+            <div class="section-card">
+                <h3 class="section-title">🍽️ الطعام والشراب</h3>
+                
+                <div class="input-group">
+                    <label>🥤 عدد أكواب الماء:</label>
+                    <input type="number" id="waterGlasses" min="0" max="20" value="0">
+                </div>
+
+                <div class="input-group">
+                    <label>☕ المشروبات:</label>
+                    <div class="time-inputs">
+                        <input type="number" id="coffeeCount" min="0" max="10" value="0" placeholder="قهوة">
+                        <input type="number" id="teaCount" min="0" max="10" value="0" placeholder="شاي">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>🍽️ الوجبات التي تناولتها:</label>
+                    <div class="meal-tracker">
+                        <div class="meal-item" data-meal="breakfast">
+                            <span class="meal-emoji">🌅</span>
+                            <div>فطور</div>
+                        </div>
+                        <div class="meal-item" data-meal="lunch">
+                            <span class="meal-emoji">☀️</span>
+                            <div>غداء</div>
+                        </div>
+                        <div class="meal-item" data-meal="dinner">
+                            <span class="meal-emoji">🌙</span>
+                            <div>عشاء</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>🥗 جودة الطعام (1-10):</label>
+                    <input type="range" id="foodQuality" min="1" max="10" value="5">
+                    <div style="text-align: center;">
+                        <span id="foodQualityValue">5</span> - <span id="foodQualityEmoji">🍽️</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- قسم النشاط والرياضة -->
+            <div class="section-card">
+                <h3 class="section-title">🏃‍♂️ النشاط والرياضة</h3>
+                
+                <div class="input-group">
+                    <label>🚶‍♂️ تقدير النشاط اليوم:</label>
+                    <select id="activityEstimate">
+                        <option value="1">خمول تام (معظم اليوم جالس/نائم)</option>
+                        <option value="2">نشاط خفيف (بعض المشي)</option>
+                        <option value="3" selected>نشاط متوسط (مشي + حركة عادية)</option>
+                        <option value="4">نشاط جيد (مشي كثير + بعض الرياضة)</option>
+                        <option value="5">نشاط عالي (رياضة منتظمة)</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label>💪 هل مارست رياضة اليوم؟</label>
+                    <select id="exerciseToday">
+                        <option value="0">لا</option>
+                        <option value="1">رياضة خفيفة (10-20 دقيقة)</option>
+                        <option value="2">رياضة متوسطة (20-45 دقيقة)</option>
+                        <option value="3">رياضة كثيفة (أكثر من 45 دقيقة)</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label>🌟 شعورك بالطاقة البدنية:</label>
+                    <input type="range" id="physicalEnergy" min="1" max="10" value="5">
+                    <div style="text-align: center;">
+                        <span id="physicalEnergyValue">5</span> - <span id="physicalEnergyEmoji">🔋</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- قسم العمل والإنتاجية -->
+            <div class="section-card">
+                <h3 class="section-title">⚡ العمل والإنتاجية</h3>
+                
+                <div class="input-group">
+                    <label>🎯 أهم 3 إنجازات اليوم:</label>
+                    <input type="text" id="achievement1" placeholder="1. أهم إنجاز اليوم">
+                    <input type="text" id="achievement2" placeholder="2. ثاني إنجاز" style="margin-top: 8px;">
+                    <input type="text" id="achievement3" placeholder="3. ثالث إنجاز" style="margin-top: 8px;">
+                </div>
+
+                <div class="input-group">
+                    <label>⏱️ مستوى التركيز اليوم:</label>
+                    <select id="focusLevel">
+                        <option value="1">مشتت جداً</option>
+                        <option value="2">مشتت قليلاً</option>
+                        <option value="3" selected>متوسط التركيز</option>
+                        <option value="4">مركز جيداً</option>
+                        <option value="5">تركيز عميق ممتاز</option>
+                    </select>
+                </div>
+
+                <div class="rating-group">
+                    <div class="rating-item">
+                        <label>🧠 الذهن</label>
+                        <input type="range" class="rating-slider" id="mentalClarity" min="1" max="10" value="5">
+                        <div class="rating-display" id="mentalClarityValue">5</div>
+                        <div class="rating-emoji" id="mentalClarityEmoji">🧠</div>
+                    </div>
+                    <div class="rating-item">
+                        <label>⚡ الطاقة</label>
+                        <input type="range" class="rating-slider" id="energyLevel" min="1" max="10" value="5">
+                        <div class="rating-display" id="energyValue">5</div>
+                        <div class="rating-emoji" id="energyEmoji">⚡</div>
+                    </div>
+                    <div class="rating-item">
+                        <label>🎯 الإنجاز</label>
+                        <input type="range" class="rating-slider" id="accomplishment" min="1" max="10" value="5">
+                        <div class="rating-display" id="accomplishmentValue">5</div>
+                        <div class="rating-emoji" id="accomplishmentEmoji">✅</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- قسم العلاقات والتواصل -->
+            <div class="section-card">
+                <h3 class="section-title">👥 العلاقات والتواصل</h3>
+                
+                <div class="input-group">
+                    <label>📱 وقت الشاشات اليوم:</label>
+                    <select id="screenTime">
+                        <option value="5">أقل من ساعتين ✅</option>
+                        <option value="4">2-4 ساعات 😊</option>
+                        <option value="3" selected>4-6 ساعات 😐</option>
+                        <option value="2">6-8 ساعات 😔</option>
+                        <option value="1">8-10 ساعات 😰</option>
+                        <option value="0">أكثر من 10 ساعات 🚨</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label>💬 من تواصلت معه اليوم؟</label>
+                    <div class="habit-tracker">
+                        <div class="habit-item" data-habit="family">
+                            <input type="checkbox" class="habit-checkbox">
+                            <span>👨‍👩‍👧‍👦 العائلة</span>
+                        </div>
+                        <div class="habit-item" data-habit="friends">
+                            <input type="checkbox" class="habit-checkbox">
+                            <span>👥 الأصدقاء</span>
+                        </div>
+                        <div class="habit-item" data-habit="colleagues">
+                            <input type="checkbox" class="habit-checkbox">
+                            <span>💼 الزملاء</span>
+                        </div>
+                        <div class="habit-item" data-habit="new-people">
+                            <input type="checkbox" class="habit-checkbox">
+                            <span>🤝 أشخاص جدد</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>❤️ جودة التواصل الاجتماعي:</label>
+                    <input type="range" id="socialQuality" min="1" max="10" value="5">
+                    <div style="text-align: center;">
+                        <span id="socialQualityValue">5</span> - <span id="socialQualityEmoji">😊</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- قسم التطوير الشخصي -->
+            <div class="section-card">
+                <h3 class="section-title">📚 التطوير الشخصي</h3>
+                
+                <div class="input-group">
+                    <label>💡 أهم شيء تعلمته اليوم:</label>
+                    <textarea id="todayLearning" rows="2" placeholder="ما أهم شيء جديد تعلمته أو اكتشفته؟"></textarea>
+                </div>
+
+                <div class="input-group">
+                    <label>📖 الأنشطة التطويرية اليوم:</label>
+                    <div class="habit-tracker">
+                        <div class="habit-item" data-learning="reading">
+                            <input type="checkbox" class="habit-checkbox">
+                            <span>📚 قراءة</span>
+                        </div>
+                        <div class="habit-item" data-learning="course">
+                            <input type="checkbox" class="habit-checkbox">
+                            <span>🎓 كورس/تدريب</span>
+                        </div>
+                        <div class="habit-item" data-learning="podcast">
+                            <input type="checkbox" class="habit-checkbox">
+                            <span>🎧 بودكاست</span>
+                        </div>
+                        <div class="habit-item" data-learning="practice">
+                            <input type="checkbox" class="habit-checkbox">
+                            <span>⚡ ممارسة مهارة</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>🧘‍♂️ الأنشطة الروحية/الذهنية:</label>
+                    <div class="habit-tracker">
+                        <div class="habit-item" data-spiritual="prayer">
+                            <input type="checkbox" class="habit-checkbox">
+                            <span>🤲 صلاة/دعاء</span>
+                        </div>
+                        <div class="habit-item" data-spiritual="meditation">
+                            <input type="checkbox" class="habit-checkbox">
+                            <span>🧘‍♂️ تأمل</span>
+                        </div>
+                        <div class="habit-item" data-spiritual="gratitude">
+                            <input type="checkbox" class="habit-checkbox">
+                            <span>🙏 امتنان</span>
+                        </div>
+                        <div class="habit-item" data-spiritual="reflection">
+                            <input type="checkbox" class="habit-checkbox">
+                            <span>💭 تأمل/تفكر</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- قسم المزاج والمشاعر -->
+            <div class="section-card">
+                <h3 class="section-title">😊 المزاج والمشاعر</h3>
+                
+                <div class="rating-group">
+                    <div class="rating-item">
+                        <label>😊 المزاج العام</label>
+                        <input type="range" class="rating-slider" id="overallMood" min="1" max="10" value="5">
+                        <div class="rating-display" id="moodValue">5</div>
+                        <div class="rating-emoji" id="moodEmoji">😐</div>
+                    </div>
+                    <div class="rating-item">
+                        <label>😌 الهدوء</label>
+                        <input type="range" class="rating-slider" id="calmness" min="1" max="10" value="5">
+                        <div class="rating-display" id="calmnessValue">5</div>
+                        <div class="rating-emoji" id="calmnessEmoji">😌</div>
+                    </div>
+                    <div class="rating-item">
+                        <label>🌟 الرضا</label>
+                        <input type="range" class="rating-slider" id="satisfaction" min="1" max="10" value="5">
+                        <div class="rating-display" id="satisfactionValue">5</div>
+                        <div class="rating-emoji" id="satisfactionEmoji">🙂</div>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>🙏 أكثر شيء أنت ممتن له اليوم:</label>
+                    <textarea id="gratitude" rows="2" placeholder="ما الذي تشعر بالامتنان الأكبر له؟"></textarea>
+                </div>
+
+                <div class="input-group">
+                    <label>⭐ أجمل لحظة عشتها اليوم:</label>
+                    <textarea id="bestMoment" rows="2" placeholder="ما أجمل وأسعد لحظة مررت بها؟"></textarea>
+                </div>
+            </div>
+
+            <!-- قسم التخطيط -->
+            <div class="section-card">
+                <h3 class="section-title">🎯 التخطيط للغد</h3>
+                
+                <div class="input-group">
+                    <label>🌅 أولوية الغد الأولى:</label>
+                    <textarea id="tomorrowPriority" rows="2" placeholder="ما أهم شيء تريد التركيز عليه غداً؟"></textarea>
+                </div>
+
+                <div class="input-group">
+                    <label>📈 شيء واحد لتحسينه غداً:</label>
+                    <textarea id="improvement" rows="2" placeholder="ما الشيء الواحد الذي تريد تحسينه؟"></textarea>
+                </div>
+
+                <div class="input-group">
+                    <label>📝 ملاحظة سريعة عن اليوم:</label>
+                    <textarea id="additionalNotes" rows="2" placeholder="أي ملاحظة أو فكرة مهمة عن يومك؟"></textarea>
+                </div>
+
+                <button class="btn" onclick="saveData()">💾 حفظ بيانات اليوم</button>
+            </div>
+        </div>
+
+        <!-- التحديات والإنجازات -->
+        <div class="challenges-section">
+            <h3>💪 تحديات وإنجازات اليوم</h3>
+            <div id="challengesInsights"></div>
+        </div>
+
+        <!-- الإحصائيات -->
+        <div class="section-card full-width-section">
+            <h3 class="section-title">📈 إحصائياتك الشخصية</h3>
+            <div class="stats-overview" id="statsOverview"></div>
+        </div>
+
+        <!-- الرؤى والنصائح -->
+        <div class="insights-section">
+            <h3>🧠 رؤى ذكية ونصائح مخصصة</h3>
+            <div id="personalInsights"></div>
+        </div>
+
+        <!-- الرسم البياني -->
+        <div class="section-card full-width-section">
+            <h3 class="section-title">📊 مخطط تطورك الشامل</h3>
+            <div class="chart-container">
+                <canvas id="progressChart" width="100%" height="310"></canvas>
+            </div>
+        </div>
+
+        <!-- السجلات السابقة -->
+        <div class="section-card full-width-section">
+            <h3 class="section-title">📋 آخر السجلات (<span id="dataCount">0</span>)</h3>
+            
+            <div style="margin-bottom: 20px; text-align: center;">
+                <button class="btn btn-secondary" onclick="exportData()">📥 تصدير البيانات</button>
+                <button class="btn btn-danger" onclick="clearAllData()">🗑️ مسح جميع البيانات</button>
+                <button class="btn btn-success" onclick="generateWeeklyReport()">📋 تقرير أسبوعي</button>
+            </div>
+            
+            <div id="dataList"></div>
+        </div>
+    </div>
+
+    <script>
+        // متغيرات عامة
+        const STORAGE_KEY = 'ultimateLifeTracker';
+        const WEEKLY_GOALS_KEY = 'weeklyGoals';
+        let darkMode = localStorage.getItem('darkMode') === 'true';
+        let reminderInterval;
+
+        // الرموز التعبيرية
+        const emojis = {
+            sleep: { 1: '😵', 2: '😴', 3: '😪', 4: '😴', 5: '💤', 6: '😌', 7: '😊', 8: '🙂', 9: '😄', 10: '🌟' },
+            food: { 1: '🤢', 2: '😔', 3: '😐', 4: '🙂', 5: '🍽️', 6: '😊', 7: '😋', 8: '🤤', 9: '😍', 10: '🌟' },
+            stress: { 1: '😌', 2: '🙂', 3: '😐', 4: '😟', 5: '😰', 6: '😫', 7: '😵', 8: '🤯', 9: '💥', 10: '🚨' },
+            creativity: { 1: '🚫', 2: '😐', 3: '🤔', 4: '💭', 5: '💡', 6: '🎨', 7: '🌟', 8: '✨', 9: '🔥', 10: '🚀' },
+            physicalEnergy: { 1: '🪫', 2: '😴', 3: '😐', 4: '🙂', 5: '🔋', 6: '⚡', 7: '💪', 8: '🔥', 9: '🚀', 10: '⭐' },
+            mentalClarity: { 1: '😵‍💫', 2: '😵', 3: '😐', 4: '🙂', 5: '🧠', 6: '💭', 7: '🔍', 8: '⚡', 9: '🌟', 10: '🎯' },
+            energy: { 1: '🪫', 2: '🔋', 3: '🔋', 4: '🔋', 5: '⚡', 6: '⚡', 7: '💪', 8: '🔥', 9: '🚀', 10: '🌟' },
+            accomplishment: { 1: '😔', 2: '😐', 3: '🙂', 4: '😊', 5: '✅', 6: '🎯', 7: '🏆', 8: '🌟', 9: '🔥', 10: '🚀' },
+            mood: { 1: '😞', 2: '😔', 3: '😕', 4: '😐', 5: '🙂', 6: '😊', 7: '😄', 8: '😃', 9: '😁', 10: '🤩' },
+            calmness: { 1: '😰', 2: '😟', 3: '😐', 4: '🙂', 5: '😌', 6: '😊', 7: '😄', 8: '🧘‍♂️', 9: '😇', 10: '🌟' },
+            satisfaction: { 1: '😞', 2: '😔', 3: '😐', 4: '🙂', 5: '😊', 6: '😄', 7: '🤗', 8: '😍', 9: '🥰', 10: '🌟' },
+            social: { 1: '😞', 2: '😔', 3: '😐', 4: '🙂', 5: '😊', 6: '😄', 7: '🤗', 8: '😍', 9: '🥰', 10: '🌟' }
+        };
+
+        // تطبيق الثيم
+        if (darkMode) {
+            document.body.classList.add('dark-mode');
+        }
+
+        // تعيين التاريخ الحالي
+        document.getElementById('date').valueAsDate = new Date();
+
+        // بدء التذكيرات الذكية
+        function startSmartReminders() {
+            const reminders = [
+                { time: 2 * 60 * 60 * 1000, message: "💧 حان وقت شرب كوب ماء!", action: "water" }, // كل ساعتين
+                { time: 3 * 60 * 60 * 1000, message: "🚶‍♂️ وقت القيام والحركة قليلاً!", action: "movement" }, // كل 3 ساعات
+                { time: 20 * 60 * 60 * 1000, message: "📝 لا تنس تسجيل بيانات يومك!", action: "logging" } // في المساء
+            ];
+
+            reminders.forEach(reminder => {
+                setInterval(() => {
+                    showReminder(reminder.message, reminder.action);
+                }, reminder.time);
+            });
+        }
+
+        // عرض التذكير
+        function showReminder(message, action) {
+            const popup = document.getElementById('reminderPopup');
+            const text = document.getElementById('reminderText');
+            text.textContent = message;
+            popup.dataset.action = action;
+            popup.classList.add('show');
+            
+            // إخفاء تلقائي بعد 10 ثوان
+            setTimeout(() => {
+                if (popup.classList.contains('show')) {
+                    closeReminder();
+                }
+            }, 10000);
+        }
+
+        // إغلاق التذكير
+        function closeReminder() {
+            document.getElementById('reminderPopup').classList.remove('show');
+        }
+
+        // التعامل مع إجراء التذكير
+        function handleReminderAction() {
+            const action = document.getElementById('reminderPopup').dataset.action;
+            
+            switch(action) {
+                case 'water':
+                    const waterInput = document.getElementById('waterGlasses');
+                    waterInput.value = parseInt(waterInput.value || 0) + 1;
+                    break;
+                case 'movement':
+                    showAlert('رائع! لا تنس الحركة والنشاط 🏃‍♂️', 'success');
+                    break;
+                case 'logging':
+                    window.scrollTo(0, 0);
+                    break;
+            }
+            
+            calculateDailyScore();
+            closeReminder();
+        }
+
+        // حفظ أهداف الأسبوع
+        function saveWeeklyGoals() {
+            const goals = {
+                goal1: document.getElementById('weeklyGoal1').value.trim(),
+                goal2: document.getElementById('weeklyGoal2').value.trim(),
+                goal3: document.getElementById('weeklyGoal3').value.trim(),
+                weekStart: getWeekStart(new Date()),
+                timestamp: new Date().toISOString()
+            };
+
+            localStorage.setItem(WEEKLY_GOALS_KEY, JSON.stringify(goals));
+            showAlert('تم حفظ أهداف الأسبوع! 🎯', 'success');
+        }
+
+        // تحميل أهداف الأسبوع
+        function loadWeeklyGoals() {
+            try {
+                const goals = JSON.parse(localStorage.getItem(WEEKLY_GOALS_KEY));
+                if (goals && goals.weekStart === getWeekStart(new Date())) {
+                    document.getElementById('weeklyGoal1').value = goals.goal1 || '';
+                    document.getElementById('weeklyGoal2').value = goals.goal2 || '';
+                    document.getElementById('weeklyGoal3').value = goals.goal3 || '';
+                }
+            } catch (error) {
+                console.log('No weekly goals found');
+            }
+        }
+
+        // الحصول على بداية الأسبوع
+        function getWeekStart(date) {
+            const d = new Date(date);
+            const day = d.getDay();
+            const diff = d.getDate() - day;
+            return new Date(d.setDate(diff)).toISOString().split('T')[0];
+        }
+
+        // حساب BMI
+        function calculateBMI() {
+            const weight = parseFloat(document.getElementById('weight').value);
+            const height = parseFloat(document.getElementById('height').value) / 100; // تحويل إلى متر
+
+            if (weight && height && weight > 0 && height > 0) {
+                const bmi = weight / (height * height);
+                const bmiDisplay = document.getElementById('bmiDisplay');
+                const bmiValue = document.getElementById('bmiValue');
+                const bmiCategory = document.getElementById('bmiCategory');
+
+                bmiValue.textContent = bmi.toFixed(1);
+                
+                let category = '';
+                if (bmi < 18.5) {
+                    category = 'نحيف';
+                    bmiDisplay.style.background = 'linear-gradient(135deg, #74b9ff 0%, #0984e3 100%)';
+                } else if (bmi < 25) {
+                    category = 'وزن مثالي ✅';
+                    bmiDisplay.style.background = 'linear-gradient(135deg, #00b894 0%, #00cec9 100%)';
+                } else if (bmi < 30) {
+                    category = 'زيادة وزن';
+                    bmiDisplay.style.background = 'linear-gradient(135deg, #fdcb6e 0%, #e17055 100%)';
+                } else {
+                    category = 'سمنة';
+                    bmiDisplay.style.background = 'linear-gradient(135deg, #ff4757 0%, #ff3742 100%)';
+                }
+
+                bmiCategory.textContent = category;
+                bmiDisplay.style.display = 'block';
+                
+                return bmi;
+            } else {
+                document.getElementById('bmiDisplay').style.display = 'none';
+                return 0;
+            }
+        }
+
+        // إعداد السلايدرات
+        function setupSliders() {
+            const sliders = [
+                { id: 'sleepQuality', value: 'sleepQualityValue', emoji: 'sleepQualityEmoji', type: 'sleep' },
+                { id: 'stressLevel', value: 'stressValue', emoji: 'stressEmoji', type: 'stress' },
+                { id: 'creativityLevel', value: 'creativityValue', emoji: 'creativityEmoji', type: 'creativity' },
+                { id: 'foodQuality', value: 'foodQualityValue', emoji: 'foodQualityEmoji', type: 'food' },
+                { id: 'physicalEnergy', value: 'physicalEnergyValue', emoji: 'physicalEnergyEmoji', type: 'physicalEnergy' },
+                { id: 'mentalClarity', value: 'mentalClarityValue', emoji: 'mentalClarityEmoji', type: 'mentalClarity' },
+                { id: 'energyLevel', value: 'energyValue', emoji: 'energyEmoji', type: 'energy' },
+                { id: 'accomplishment', value: 'accomplishmentValue', emoji: 'accomplishmentEmoji', type: 'accomplishment' },
+                { id: 'overallMood', value: 'moodValue', emoji: 'moodEmoji', type: 'mood' },
+                { id: 'calmness', value: 'calmnessValue', emoji: 'calmnessEmoji', type: 'calmness' },
+                { id: 'satisfaction', value: 'satisfactionValue', emoji: 'satisfactionEmoji', type: 'satisfaction' },
+                { id: 'socialQuality', value: 'socialQualityValue', emoji: 'socialQualityEmoji', type: 'social' }
+            ];
+
+            sliders.forEach(({ id, value, emoji, type }) => {
+                const slider = document.getElementById(id);
+                if (slider) {
+                    slider.addEventListener('input', function() {
+                        const val = this.value;
+                        document.getElementById(value).textContent = val;
+                        document.getElementById(emoji).textContent = emojis[type][val];
+                        calculateDailyScore();
+                    });
+                }
+            });
+        }
+
+        // إعداد تتبع الوجبات
+        function setupMealTracking() {
+            document.querySelectorAll('.meal-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    this.classList.toggle('selected');
+                    calculateDailyScore();
+                });
+            });
+        }
+
+        // إعداد تتبع العادات
+        function setupHabitTracking() {
+            document.querySelectorAll('.habit-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const checkbox = this.querySelector('.habit-checkbox');
+                    checkbox.checked = !checkbox.checked;
+                    this.classList.toggle('checked', checkbox.checked);
+                    calculateDailyScore();
+                });
+            });
+        }
+
+        // حساب النتيجة اليومية المحسنة
+        function calculateDailyScore() {
+            // نقاط النوم (25 نقطة)
+            const sleepQuality = parseInt(document.getElementById('sleepQuality').value);
+            const bedTime = document.getElementById('bedTime').value;
+            const wakeTime = document.getElementById('wakeTime').value;
+            let sleepHours = 0;
+            
+            if (bedTime && wakeTime) {
+                const bed = new Date(`2000-01-01 ${bedTime}`);
+                let wake = new Date(`2000-01-01 ${wakeTime}`);
+                if (wake < bed) wake.setDate(wake.getDate() + 1);
+                sleepHours = (wake - bed) / (1000 * 60 * 60);
+            }
+            
+            const sleepHoursScore = sleepHours >= 7 && sleepHours <= 9 ? 10 : Math.max(0, 10 - Math.abs(sleepHours - 8) * 2);
+            const sleepScore = Math.round(((sleepQuality * 1.5 + sleepHoursScore) / 25) * 25);
+
+            // نقاط الصحة (25 نقطة) - مع BMI
+            const waterGlasses = parseInt(document.getElementById('waterGlasses').value) || 0;
+            const activityEstimate = parseInt(document.getElementById('activityEstimate').value);
+            const exerciseToday = parseInt(document.getElementById('exerciseToday').value);
+            const physicalEnergy = parseInt(document.getElementById('physicalEnergy').value);
+            const foodQuality = parseInt(document.getElementById('foodQuality').value);
+            const mealsCount = document.querySelectorAll('.meal-item.selected').length;
+            const bmi = calculateBMI();
+            
+            const waterPoints = Math.min(waterGlasses * 1.25, 10);
+            const bmiPoints = bmi > 0 ? (bmi >= 18.5 && bmi <= 25 ? 5 : Math.max(0, 5 - Math.abs(bmi - 22) * 0.5)) : 0;
+            const healthScore = Math.round(((waterPoints + activityEstimate * 2 + exerciseToday * 2 + physicalEnergy + foodQuality + mealsCount + bmiPoints) / 40) * 25);
+
+            // نقاط الإنتاجية (25 نقطة)
+            const achievements = [
+                document.getElementById('achievement1').value.trim(),
+                document.getElementById('achievement2').value.trim(),
+                document.getElementById('achievement3').value.trim()
+            ].filter(a => a.length > 0).length;
+            
+            const focusLevel = parseInt(document.getElementById('focusLevel').value);
+            const mentalClarity = parseInt(document.getElementById('mentalClarity').value);
+            const energyLevel = parseInt(document.getElementById('energyLevel').value);
+            const accomplishment = parseInt(document.getElementById('accomplishment').value);
+            const creativityLevel = parseInt(document.getElementById('creativityLevel').value);
+            const comfortZone = parseInt(document.getElementById('comfortZone').value);
+            
+            const productivityScore = Math.round(((achievements * 4 + focusLevel * 2 + mentalClarity + energyLevel + accomplishment + creativityLevel + comfortZone) / 30) * 25);
+
+            // نقاط الراحة النفسية (25 نقطة)
+            const overallMood = parseInt(document.getElementById('overallMood').value);
+            const calmness = parseInt(document.getElementById('calmness').value);
+            const satisfaction = parseInt(document.getElementById('satisfaction').value);
+            const socialQuality = parseInt(document.getElementById('socialQuality').value);
+            const screenTime = parseInt(document.getElementById('screenTime').value);
+            const stressLevel = 11 - parseInt(document.getElementById('stressLevel').value); // عكس القيمة (أقل توتر = نقاط أكثر)
+            
+            const socialConnections = document.querySelectorAll('[data-habit] .habit-checkbox:checked').length;
+            const learningActivities = document.querySelectorAll('[data-learning] .habit-checkbox:checked').length;
+            const spiritualActivities = document.querySelectorAll('[data-spiritual] .habit-checkbox:checked').length;
+            
+            const gratitude = document.getElementById('gratitude').value.trim().length > 0 ? 2 : 0;
+            const bestMoment = document.getElementById('bestMoment').value.trim().length > 0 ? 2 : 0;
+            const challengeHandling = document.getElementById('challengeResponse').value.trim().length > 0 ? 3 : 0;
+            
+            const wellbeingScore = Math.round(((overallMood + calmness + satisfaction + socialQuality + screenTime + stressLevel + socialConnections + learningActivities + spiritualActivities + gratitude + bestMoment + challengeHandling) / 50) * 25);
+
+            // النتيجة الإجمالية
+            const totalScore = Math.min(sleepScore + healthScore + productivityScore + wellbeingScore, 100);
+
+            // تحديث العرض
+            document.getElementById('sleepScore').textContent = sleepScore;
+            document.getElementById('healthScore').textContent = healthScore;
+            document.getElementById('productivityScore').textContent = productivityScore;
+            document.getElementById('wellbeingScore').textContent = wellbeingScore;
+            document.getElementById('totalScore').textContent = totalScore + '%';
+            document.getElementById('mainProgress').style.width = totalScore + '%';
+
+            updateDailyOverview(totalScore);
+            
+            return {
+                total: totalScore,
+                sleep: sleepScore,
+                health: healthScore,
+                productivity: productivityScore,
+                wellbeing: wellbeingScore
+            };
+        }
+
+        // تحديث النظرة العامة اليومية
+        function updateDailyOverview(score) {
+            const overview = document.getElementById('dailyOverview');
+            let message = '';
+            let badge = '';
+            
+            if (score >= 90) {
+                message = '🏆 يوم استثنائي! أنت في القمة!';
+                badge = '👑 ملك اليوم';
+            } else if (score >= 80) {
+                message = '🌟 يوم رائع جداً! أداء متميز!';
+                badge = '⭐ نجم اليوم';
+            } else if (score >= 70) {
+                message = '😊 يوم جيد جداً! استمر بهذا الأداء!';
+                badge = '🎯 محترف';
+            } else if (score >= 60) {
+                message = '🌱 يوم جيد، يمكن تحسينه أكثر!';
+                badge = '📈 في تطور';
+            } else if (score >= 40) {
+                message = '💪 ابدأ بخطوات صغيرة للتحسن!';
+                badge = '🌱 مبتدئ';
+            } else {
+                message = '🚀 غداً سيكون أفضل! لا تستسلم!';
+                badge = '💪 مقاتل';
+            }
+            
+            overview.innerHTML = `
+                <strong>${message}</strong><br>
+                <div class="achievements-badge">${badge}</div>
+                نتيجتك الحالية: <strong>${score}%</strong>
+            `;
+        }
+
+        // حفظ البيانات المحسن
+        function saveData() {
+            const date = document.getElementById('date').value;
+            
+            if (!date) {
+                showAlert('يرجى تحديد التاريخ!', 'warning');
+                return;
+            }
+
+            const scores = calculateDailyScore();
+            
+            const entry = {
+                id: Date.now(),
+                date: date,
+                
+                // البيانات الأساسية
+                weight: parseFloat(document.getElementById('weight').value) || null,
+                height: parseFloat(document.getElementById('height').value) || null,
+                bmi: calculateBMI(),
+                
+                // النوم
+                bedTime: document.getElementById('bedTime').value,
+                wakeTime: document.getElementById('wakeTime').value,
+                sleepQuality: parseInt(document.getElementById('sleepQuality').value),
+                
+                // التحديات والضغوط
+                stressLevel: parseInt(document.getElementById('stressLevel').value),
+                biggestChallenge: document.getElementById('biggestChallenge').value.trim(),
+                challengeResponse: document.getElementById('challengeResponse').value.trim(),
+                creativityLevel: parseInt(document.getElementById('creativityLevel').value),
+                comfortZone: parseInt(document.getElementById('comfortZone').value),
+                
+                // الطعام والشراب
+                waterGlasses: parseInt(document.getElementById('waterGlasses').value) || 0,
+                coffeeCount: parseInt(document.getElementById('coffeeCount').value) || 0,
+                teaCount: parseInt(document.getElementById('teaCount').value) || 0,
+                foodQuality: parseInt(document.getElementById('foodQuality').value),
+                meals: Array.from(document.querySelectorAll('.meal-item.selected')).map(item => item.dataset.meal),
+                
+                // النشاط
+                activityEstimate: parseInt(document.getElementById('activityEstimate').value),
+                exerciseToday: parseInt(document.getElementById('exerciseToday').value),
+                physicalEnergy: parseInt(document.getElementById('physicalEnergy').value),
+                
+                // العمل والإنتاجية
+                achievements: [
+                    document.getElementById('achievement1').value.trim(),
+                    document.getElementById('achievement2').value.trim(),
+                    document.getElementById('achievement3').value.trim()
+                ].filter(a => a.length > 0),
+                focusLevel: parseInt(document.getElementById('focusLevel').value),
+                mentalClarity: parseInt(document.getElementById('mentalClarity').value),
+                energyLevel: parseInt(document.getElementById('energyLevel').value),
+                accomplishment: parseInt(document.getElementById('accomplishment').value),
+                
+                // العلاقات
+                screenTime: parseInt(document.getElementById('screenTime').value),
+                socialConnections: Array.from(document.querySelectorAll('[data-habit] .habit-checkbox:checked')).map(cb => cb.parentElement.dataset.habit),
+                socialQuality: parseInt(document.getElementById('socialQuality').value),
+                
+                // التطوير الشخصي
+                todayLearning: document.getElementById('todayLearning').value.trim(),
+                learningActivities: Array.from(document.querySelectorAll('[data-learning] .habit-checkbox:checked')).map(cb => cb.parentElement.dataset.learning),
+                spiritualActivities: Array.from(document.querySelectorAll('[data-spiritual] .habit-checkbox:checked')).map(cb => cb.parentElement.dataset.spiritual),
+                
+                // المزاج
+                overallMood: parseInt(document.getElementById('overallMood').value),
+                calmness: parseInt(document.getElementById('calmness').value),
+                satisfaction: parseInt(document.getElementById('satisfaction').value),
+                gratitude: document.getElementById('gratitude').value.trim(),
+                bestMoment: document.getElementById('bestMoment').value.trim(),
+                
+                // التخطيط
+                tomorrowPriority: document.getElementById('tomorrowPriority').value.trim(),
+                improvement: document.getElementById('improvement').value.trim(),
+                additionalNotes: document.getElementById('additionalNotes').value.trim(),
+                
+                // النتائج
+                scores: scores,
+                
+                timestamp: new Date().toISOString()
+            };
+
+            let data = getSavedData();
+            const existingIndex = data.findIndex(item => item.date === date);
+            
+            if (existingIndex !== -1) {
+                if (confirm('يوجد بيانات لهذا التاريخ. هل تريد استبدالها؟')) {
+                    data[existingIndex] = entry;
+                } else {
+                    return;
+                }
+            } else {
+                data.push(entry);
+            }
+
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+            showAlert('تم حفظ بيانات اليوم بنجاح! 🎉', 'success');
+            
+            updateDisplay();
+            clearForm();
+        }
+
+        // الحصول على البيانات المحفوظة
+        function getSavedData() {
+            try {
+                return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+            } catch {
+                return [];
+            }
+        }
+
+        // عرض التنبيهات
+        function showAlert(message, type) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.textContent = message;
+            document.querySelector('.container').insertBefore(alertDiv, document.querySelector('.weekly-goals'));
+            
+            setTimeout(() => alertDiv.remove(), 4000);
+        }
+
+        // تحديث جميع العروض
+        function updateDisplay() {
+            displayStats();
+            displayData();
+            generatePersonalInsights();
+            displayChallengesInsights();
+            updateChart();
+        }
+
+        // عرض رؤى التحديات
+        function displayChallengesInsights() {
+            const data = getSavedData();
+            const challengesDiv = document.getElementById('challengesInsights');
+
+            if (data.length === 0) {
+                challengesDiv.innerHTML = '<div class="challenge-item">🎯 ابدأ بتسجيل بياناتك لنرى كيف تتعامل مع التحديات!</div>';
+                return;
+            }
+
+            const recentData = data.slice(-7);
+            const insights = [];
+
+            // تحليل مستوى التوتر
+            const avgStress = recentData.reduce((sum, entry) => sum + (entry.stressLevel || 5), 0) / recentData.length;
+            if (avgStress > 7) {
+                insights.push('⚠️ مستوى التوتر مرتفع هذا الأسبوع. جرب تقنيات التنفس والاسترخاء');
+            } else if (avgStress < 4) {
+                insights.push('😌 مستوى التوتر منخفض ممتاز! أنت تدير الضغوط بشكل رائع');
+            }
+
+            // تحليل الإبداع
+            const avgCreativity = recentData.reduce((sum, entry) => sum + (entry.creativityLevel || 5), 0) / recentData.length;
+            if (avgCreativity > 7) {
+                insights.push('🎨 إبداعك في أعلى مستوياته! استغل هذه الفترة للمشاريع الجديدة');
+            } else if (avgCreativity < 4) {
+                insights.push('💡 الإبداع يحتاج تحفيز. جرب تغيير البيئة أو تعلم شيء جديد');
+            }
+
+            // تحليل الخروج من منطقة الراحة
+            const comfortZoneSteps = recentData.filter(entry => (entry.comfortZone || 0) >= 2).length;
+            if (comfortZoneSteps >= 5) {
+                insights.push('🚀 رائع! أنت تتحدى نفسك باستمرار وتنمو كل يوم');
+            } else if (comfortZoneSteps < 2) {
+                insights.push('🌱 حاول تحدي نفسك أكثر. النمو يحدث خارج منطقة الراحة');
+            }
+
+            // أكثر التحديات تكراراً
+            const challenges = recentData
+                .map(entry => entry.biggestChallenge)
+                .filter(c => c && c.length > 0);
+            
+            if (challenges.length > 0) {
+                insights.push('📝 أكثر تحدياتك تتعلق بـ: ' + (challenges[0] || 'إدارة الوقت'));
+            }
+
+            challengesDiv.innerHTML = insights.slice(0, 4).map(insight => 
+                `<div class="challenge-item">${insight}</div>`
+            ).join('');
+        }
+
+        // إنشاء تقرير أسبوعي
+        function generateWeeklyReport() {
+            const data = getSavedData();
+            const weekData = data.slice(-7);
+            
+            if (weekData.length < 3) {
+                showAlert('تحتاج بيانات أكثر لإنشاء تقرير أسبوعي', 'warning');
+                return;
+            }
+
+            const report = {
+                period: `${weekData[0].date} إلى ${weekData[weekData.length - 1].date}`,
+                totalDays: weekData.length,
+                averages: {
+                    totalScore: (weekData.reduce((sum, entry) => sum + (entry.scores?.total || 0), 0) / weekData.length).toFixed(1),
+                    sleep: (weekData.reduce((sum, entry) => sum + (entry.sleepQuality || 0), 0) / weekData.length).toFixed(1),
+                    stress: (weekData.reduce((sum, entry) => sum + (entry.stressLevel || 0), 0) / weekData.length).toFixed(1),
+                    mood: (weekData.reduce((sum, entry) => sum + (entry.overallMood || 0), 0) / weekData.length).toFixed(1),
+                    water: Math.round(weekData.reduce((sum, entry) => sum + (entry.waterGlasses || 0), 0) / weekData.length)
+                },
+                achievements: weekData.reduce((sum, entry) => sum + (entry.achievements?.length || 0), 0),
+                bestDay: weekData.reduce((best, current) => 
+                    (current.scores?.total || 0) > (best.scores?.total || 0) ? current : best
+                ),
+                challenges: weekData.filter(entry => entry.biggestChallenge && entry.biggestChallenge.length > 0).length,
+                learningDays: weekData.filter(entry => entry.todayLearning && entry.todayLearning.length > 0).length
+            };
+
+            const reportHTML = `
+                <div style="background: white; padding: 20px; border-radius: 15px; margin: 20px 0; color: #333;">
+                    <h3 style="text-align: center; color: #667eea; margin-bottom: 20px;">📋 التقرير الأسبوعي</h3>
+                    <p><strong>الفترة:</strong> ${report.period}</p>
+                    <p><strong>الأيام المسجلة:</strong> ${report.totalDays}/7</p>
+                    
+                    <h4 style="color: #667eea; margin: 15px 0 10px 0;">📊 المتوسطات:</h4>
+                    <ul>
+                        <li>النتيجة الإجمالية: ${report.averages.totalScore}%</li>
+                        <li>جودة النوم: ${report.averages.sleep}/10</li>
+                        <li>مستوى التوتر: ${report.averages.stress}/10</li>
+                        <li>المزاج العام: ${report.averages.mood}/10</li>
+                        <li>أكواب الماء يومياً: ${report.averages.water}</li>
+                    </ul>
+                    
+                    <h4 style="color: #667eea; margin: 15px 0 10px 0;">🏆 الإنجازات:</h4>
+                    <ul>
+                        <li>إجمالي الإنجازات: ${report.achievements}</li>
+                        <li>أيام التعلم: ${report.learningDays}/${report.totalDays}</li>
+                        <li>أيام مواجهة التحديات: ${report.challenges}/${report.totalDays}</li>
+                        <li>أفضل يوم: ${new Date(report.bestDay.date).toLocaleDateString('ar-SA')} (${report.bestDay.scores?.total || 0}%)</li>
+                    </ul>
+                    
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 10px; margin-top: 15px;">
+                        <strong>💡 توصية الأسبوع:</strong><br>
+                        ${report.averages.totalScore > 75 ? 
+                            'أداء ممتاز! حافظ على هذا المستوى الرائع.' : 
+                            report.averages.totalScore > 60 ? 
+                                'أداء جيد، ركز على تحسين النوم وتقليل التوتر.' :
+                                'ابدأ بتحسين عادة واحدة كل أسبوع للوصول لنتائج أفضل.'
+                        }
+                    </div>
+                </div>
+            `;
+
+            // إنشاء نافذة منبثقة للتقرير
+            const reportWindow = window.open('', '_blank', 'width=600,height=800,scrollbars=yes');
+            reportWindow.document.write(`
+                <html dir="rtl">
+                <head><title>التقرير الأسبوعي</title>
+                <style>body{font-family:Arial;padding:20px;}</style></head>
+                <body>${reportHTML}</body>
+                </html>
+            `);
+            
+            showAlert('تم إنشاء التقرير الأسبوعي! 📋', 'success');
+        }
+
+        // عرض الإحصائيات المحسنة
+        function displayStats() {
+            const data = getSavedData();
+            const statsDiv = document.getElementById('statsOverview');
+
+            if (data.length === 0) {
+                statsDiv.innerHTML = '<div class="stat-card"><div class="stat-number">0</div><div class="stat-label">ابدأ رحلتك اليوم!</div></div>';
+                return;
+            }
+
+            const totalDays = data.length;
+            const avgTotalScore = (data.reduce((sum, entry) => sum + (entry.scores?.total || 0), 0) / totalDays).toFixed(1);
+            const avgBMI = data.filter(entry => entry.bmi > 0).length > 0 ? 
+                (data.filter(entry => entry.bmi > 0).reduce((sum, entry) => sum + entry.bmi, 0) / data.filter(entry => entry.bmi > 0).length).toFixed(1) : 0;
+            
+            const avgStress = (data.reduce((sum, entry) => sum + (entry.stressLevel || 5), 0) / totalDays).toFixed(1);
+            const avgCreativity = (data.reduce((sum, entry) => sum + (entry.creativityLevel || 5), 0) / totalDays).toFixed(1);
+            const totalChallenges = data.filter(entry => entry.biggestChallenge && entry.biggestChallenge.length > 0).length;
+            const comfortZoneSteps = data.filter(entry => (entry.comfortZone || 0) >= 2).length;
+            
+            const totalWater = data.reduce((sum, entry) => sum + (entry.waterGlasses || 0), 0);
+            const totalExercise = data.filter(entry => (entry.exerciseToday || 0) > 0).length;
+            const totalAchievements = data.reduce((sum, entry) => sum + (entry.achievements?.length || 0), 0);
+            const learningDays = data.filter(entry => entry.todayLearning && entry.todayLearning.length > 0).length;
+
+            const bestDay = data.reduce((best, current) => 
+                (current.scores?.total || 0) > (best.scores?.total || 0) ? current : best
+            );
+
+            const recentWeek = data.slice(-7);
+            const weeklyAvg = recentWeek.length > 0 ? 
+                (recentWeek.reduce((sum, entry) => sum + (entry.scores?.total || 0), 0) / recentWeek.length).toFixed(1) : 0;
+
+            const excellentDays = data.filter(d => (d.scores?.total || 0) >= 80).length;
+            const weightEntries = data.filter(entry => entry.weight > 0);
+            const weightChange = weightEntries.length > 1 ? 
+                (weightEntries[weightEntries.length - 1].weight - weightEntries[0].weight).toFixed(1) : 0;
+
+            statsDiv.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-number">${totalDays}</div>
+                    <div class="stat-label">أيام مسجلة</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${avgTotalScore}%</div>
+                    <div class="stat-label">متوسط النتيجة</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${avgBMI > 0 ? avgBMI : '-'}</div>
+                    <div class="stat-label">متوسط BMI</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${weightChange}${weightChange != 0 ? 'كجم' : ''}</div>
+                    <div class="stat-label">تغيير الوزن</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${avgStress}/10</div>
+                    <div class="stat-label">متوسط التوتر</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${avgCreativity}/10</div>
+                    <div class="stat-label">متوسط الإبداع</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${totalChallenges}</div>
+                    <div class="stat-label">تحديات واجهتها</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${comfortZoneSteps}</div>
+                    <div class="stat-label">مرات خروج من منطقة الراحة</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${totalWater}</div>
+                    <div class="stat-label">إجمالي أكواب الماء</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${totalExercise}</div>
+                    <div class="stat-label">أيام الرياضة</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${totalAchievements}</div>
+                    <div class="stat-label">إجمالي الإنجازات</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${learningDays}</div>
+                    <div class="stat-label">أيام التعلم</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${bestDay.scores?.total || 0}%</div>
+                    <div class="stat-label">أفضل يوم</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${weeklyAvg}%</div>
+                    <div class="stat-label">متوسط الأسبوع</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${excellentDays}</div>
+                    <div class="stat-label">أيام ممتازة (80%+)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${Math.round((excellentDays / totalDays) * 100)}%</div>
+                    <div class="stat-label">نسبة الأيام الممتازة</div>
+                </div>
+            `;
+        }
+
+        // توليد الرؤى الشخصية المحسنة
+        function generatePersonalInsights() {
+            const data = getSavedData();
+            const insightsDiv = document.getElementById('personalInsights');
+
+            if (data.length < 3) {
+                insightsDiv.innerHTML = '<div class="insight-item">📊 سجل بياناتك لعدة أيام للحصول على رؤى ذكية ونصائح مخصصة!</div>';
+                return;
+            }
+
+            const insights = [];
+            const recentData = data.slice(-7);
+
+            // تحليل BMI والوزن
+            const weightEntries = data.filter(entry => entry.weight > 0);
+            if (weightEntries.length > 1) {
+                const weightChange = weightEntries[weightEntries.length - 1].weight - weightEntries[0].weight;
+                if (Math.abs(weightChange) > 0.5) {
+                    insights.push(`⚖️ ${weightChange > 0 ? 'زاد' : 'نقص'} وزنك ${Math.abs(weightChange).toFixed(1)} كجم منذ البداية`);
+                }
+            }
+
+            const avgBMI = recentData.filter(entry => entry.bmi > 0).length > 0 ? 
+                recentData.filter(entry => entry.bmi > 0).reduce((sum, entry) => sum + entry.bmi, 0) / recentData.filter(entry => entry.bmi > 0).length : 0;
+            
+            if (avgBMI > 0) {
+                if (avgBMI >= 18.5 && avgBMI <= 25) {
+                    insights.push('✅ مؤشر كتلة الجسم في المعدل الطبيعي - ممتاز!');
+                } else if (avgBMI > 25) {
+                    insights.push('📉 مؤشر كتلة الجسم مرتفع قليلاً. ركز على الرياضة والطعام الصحي');
+                }
+            }
+
+            // تحليل النوم المحسن
+            const sleepEntries = recentData.filter(entry => entry.bedTime && entry.wakeTime);
+            if (sleepEntries.length > 0) {
+                const avgSleepQuality = sleepEntries.reduce((sum, entry) => sum + entry.sleepQuality, 0) / sleepEntries.length;
+                if (avgSleepQuality < 6) {
+                    insights.push('😴 جودة نومك تحتاج تحسين. جرب روتين نوم ثابت وتجنب الشاشات قبل النوم');
+                } else if (avgSleepQuality > 8) {
+                    insights.push('🌟 نومك ممتاز! هذا يفسر طاقتك العالية ومزاجك الجيد');
+                }
+            }
+
+            // بقية التحليلات...
+            // [يمكن إضافة المزيد من التحليلات هنا]
+
+            insightsDiv.innerHTML = insights.slice(0, 6).map(insight => 
+                `<div class="insight-item">${insight}</div>`
+            ).join('');
+        }
+
+        // باقي الوظائف (updateChart, displayData, إلخ) تبقى كما هي مع تحسينات طفيفة
+        
+        // رسم المخطط البياني المحسن
+        function updateChart() {
+            const data = getSavedData().slice(-14); // آخر 14 يوم
+            const canvas = document.getElementById('progressChart');
+            const ctx = canvas.getContext('2d');
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            if (data.length === 0) {
+                ctx.fillStyle = '#666';
+                ctx.font = '18px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('سيظهر مخطط تطورك بعد تسجيل البيانات لعدة أيام', canvas.width/2, canvas.height/2);
+                return;
+            }
+
+            const padding = 50;
+            const chartWidth = canvas.width - 2 * padding;
+            const chartHeight = canvas.height - 2 * padding;
+
+            // رسم المحاور
+            ctx.strokeStyle = '#e0e0e0';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(padding, padding);
+            ctx.lineTo(padding, canvas.height - padding);
+            ctx.lineTo(canvas.width - padding, canvas.height - padding);
+            ctx.stroke();
+
+            // رسم خطوط مختلفة للنتائج
+            const colors = {
+                total: '#667eea',
+                sleep: '#00b894',
+                health: '#fd79a8',
+                productivity: '#fdcb6e',
+                wellbeing: '#74b9ff',
+                stress: '#ff4757' // خط التوتر (مقلوب)
+            };
+
+            // رسم الخطوط
+            Object.keys(colors).forEach(scoreType => {
+                if (data.length > 1) {
+                    ctx.strokeStyle = colors[scoreType];
+                    ctx.lineWidth = scoreType === 'total' ? 4 : 2;
+                    ctx.beginPath();
+
+                    data.forEach((entry, index) => {
+                        let score;
+                        if (scoreType === 'total') {
+                            score = entry.scores?.total || 0;
+                        } else if (scoreType === 'stress') {
+                            score = 100 - ((entry.stressLevel || 5) * 10); // عكس التوتر
+                        } else {
+                            score = entry.scores?.[scoreType] || 0;
+                        }
+                        
+                        const x = padding + (index / (data.length - 1)) * chartWidth;
+                        const y = canvas.height - padding - (score / 100) * chartHeight;
+                        
+                        if (index === 0) {
+                            ctx.moveTo(x, y);
+                        } else {
+                            ctx.lineTo(x, y);
+                        }
+                    });
+                    ctx.stroke();
+
+                    // رسم النقاط للخط الرئيسي فقط
+                    if (scoreType === 'total') {
+                        ctx.fillStyle = colors[scoreType];
+                        data.forEach((entry, index) => {
+                            const score = entry.scores?.total || 0;
+                            const x = padding + (index / (data.length - 1)) * chartWidth;
+                            const y = canvas.height - padding - (score / 100) * chartHeight;
+                            
+                            ctx.beginPath();
+                            ctx.arc(x, y, 6, 0, 2 * Math.PI);
+                            ctx.fill();
+                        });
+                    }
+                }
+            });
+
+            // إضافة تسميات المحاور
+            ctx.fillStyle = '#666';
+            ctx.font = '12px Arial';
+            ctx.textAlign = 'right';
+            
+            for (let i = 0; i <= 100; i += 25) {
+                const y = canvas.height - padding - (i / 100) * chartHeight;
+                ctx.fillText(i + '%', padding - 10, y + 4);
+            }
+
+            // إضافة مفتاح الألوان المحسن
+            const legendY = 20;
+            const legendItems = [
+                { name: 'الإجمالي', color: colors.total },
+                { name: 'النوم', color: colors.sleep },
+                { name: 'الصحة', color: colors.health },
+                { name: 'الإنتاجية', color: colors.productivity },
+                { name: 'الراحة النفسية', color: colors.wellbeing },
+                { name: 'انخفاض التوتر', color: colors.stress }
+            ];
+
+            legendItems.forEach((item, index) => {
+                const x = padding + (index % 3) * 200;
+                const y = legendY + Math.floor(index / 3) * 20;
+                ctx.fillStyle = item.color;
+                ctx.fillRect(x, y, 15, 3);
+                ctx.fillStyle = '#333';
+                ctx.font = '11px Arial';
+                ctx.textAlign = 'left';
+                ctx.fillText(item.name, x + 20, y + 10);
+            });
+        }
+
+        // عرض البيانات المحسن
+        function displayData() {
+            const data = getSavedData();
+            const dataList = document.getElementById('dataList');
+            const dataCount = document.getElementById('dataCount');
+            
+            dataCount.textContent = data.length;
+
+            if (data.length === 0) {
+                dataList.innerHTML = '<div style="text-align: center; color: #666; padding: 20px;">لا توجد بيانات محفوظة بعد. ابدأ بتسجيل يومك الأول!</div>';
+                return;
+            }
+
+            const sortedData = data.sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
+
+            dataList.innerHTML = sortedData.map(entry => {
+                const formattedDate = new Date(entry.date).toLocaleDateString('ar-SA', {
+                    weekday: 'long', 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric'
+                });
+                
+                return `
+                    <div class="data-entry">
+                        <div class="data-entry-header">
+                            <div class="data-entry-date">${formattedDate}</div>
+                            <div class="data-entry-score">${entry.scores?.total || 0}%</div>
+                        </div>
+                        <div class="data-entry-content">
+                            <div>
+                                <strong>😴 النوم:</strong> ${entry.sleepQuality}/10<br>
+                                <strong>📊 التوتر:</strong> ${entry.stressLevel}/10<br>
+                                <strong>💧 الماء:</strong> ${entry.waterGlasses || 0} أكواب<br>
+                                <strong>⚖️ الوزن:</strong> ${entry.weight || '-'} كجم
+                            </div>
+                            <div>
+                                <strong>😊 المزاج:</strong> ${entry.overallMood}/10<br>
+                                <strong>🎨 الإبداع:</strong> ${entry.creativityLevel}/10<br>
+                                <strong>✅ الإنجازات:</strong> ${entry.achievements?.length || 0}<br>
+                                <strong>🚀 خروج من منطقة الراحة:</strong> ${entry.comfortZone >= 2 ? 'نعم' : 'لا'}
+                            </div>
+                        </div>
+                        ${entry.biggestChallenge ? `<div style="margin-top: 15px; font-style: italic; background: rgba(255,255,255,0.1); padding: 10px; border-radius: 8px;"><strong>💪 تحدي:</strong> "${entry.biggestChallenge}"</div>` : ''}
+                        ${entry.gratitude ? `<div style="margin-top: 10px; font-style: italic; background: rgba(255,255,255,0.1); padding: 10px; border-radius: 8px;"><strong>🙏 امتنان:</strong> "${entry.gratitude}"</div>` : ''}
+                        ${entry.tomorrowPriority ? `<div style="margin-top: 10px; background: rgba(255,255,255,0.1); padding: 10px; border-radius: 8px;"><strong>🎯 هدف الغد:</strong> "${entry.tomorrowPriority}"</div>` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // باقي الوظائف (exportData, clearAllData, toggleTheme, clearForm, setupEventListeners)
+        // تبقى كما هي مع إضافات بسيطة
+
+        function exportData() {
+            const data = getSavedData();
+            if (data.length === 0) {
+                showAlert('لا توجد بيانات للتصدير', 'warning');
+                return;
+            }
+
+            const exportData = {
+                exportDate: new Date().toISOString(),
+                version: '5.0',
+                appName: 'Ultimate Life Tracker',
+                totalEntries: data.length,
+                dateRange: {
+                    from: data[0].date,
+                    to: data[data.length - 1].date
+                },
+                features: ['sleep', 'health', 'productivity', 'wellbeing', 'challenges', 'bmi', 'stress', 'creativity'],
+                data: data
+            };
+
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `ultimate-life-tracker-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            showAlert('تم تصدير بياناتك الكاملة بنجاح! 📥', 'success');
+        }
+
+        function clearAllData() {
+            if (confirm('هل أنت متأكد من حذف جميع البيانات؟ هذا لا يمكن التراجع عنه!\n\nنصيحة: صدّر بياناتك أولاً كنسخة احتياطية.')) {
+                if (confirm('تأكيد أخير: سيتم حذف كل شيء نهائياً!')) {
+                    localStorage.removeItem(STORAGE_KEY);
+                    localStorage.removeItem(WEEKLY_GOALS_KEY);
+                    updateDisplay();
+                    calculateDailyScore();
+                    loadWeeklyGoals();
+                    showAlert('تم مسح جميع البيانات', 'success');
+                }
+            }
+        }
+
+        function toggleTheme() {
+            darkMode = !darkMode;
+            document.body.classList.toggle('dark-mode');
+            localStorage.setItem('darkMode', darkMode);
+            document.querySelector('.theme-toggle').textContent = darkMode ? '☀️' : '🌙';
+        }
+
+        function clearForm() {
+            // مسح جميع النصوص
+            ['achievement1', 'achievement2', 'achievement3', 'todayLearning', 'gratitude', 'bestMoment', 'tomorrowPriority', 'improvement', 'additionalNotes', 'biggestChallenge', 'challengeResponse'].forEach(id => {
+                document.getElementById(id).value = '';
+            });
+            
+            // إعادة تعيين الأرقام
+            ['waterGlasses', 'coffeeCount', 'teaCount', 'weight', 'height'].forEach(id => {
+                document.getElementById(id).value = '';
+            });
+            
+            // إعادة تعيين السلايدرات إلى 5
+            ['sleepQuality', 'stressLevel', 'creativityLevel', 'foodQuality', 'physicalEnergy', 'mentalClarity', 'energyLevel', 'accomplishment', 'overallMood', 'calmness', 'satisfaction', 'socialQuality'].forEach(id => {
+                document.getElementById(id).value = '5';
+            });
+            
+            // إعادة تعيين القوائم المنسدلة
+            ['activityEstimate', 'exerciseToday', 'focusLevel', 'comfortZone', 'screenTime'].forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.selectedIndex = element.querySelector('[selected]') ? 
+                        Array.from(element.options).findIndex(option => option.hasAttribute('selected')) : 
+                        Math.floor(element.options.length / 2);
+                }
+            });
+            
+            // مسح الوجبات المحددة
+            document.querySelectorAll('.meal-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            
+            // مسح العادات المحددة
+            document.querySelectorAll('.habit-item').forEach(item => {
+                const checkbox = item.querySelector('.habit-checkbox');
+                checkbox.checked = false;
+                item.classList.remove('checked');
+            });
+            
+            // إعادة تعيين التاريخ
+            document.getElementById('date').valueAsDate = new Date();
+            
+            // إخفاء BMI
+            document.getElementById('bmiDisplay').style.display = 'none';
+            
+            // تحديث القيم المعروضة
+            setupSliders();
+            calculateDailyScore();
+        }
+
+        function setupEventListeners() {
+            setupSliders();
+            setupMealTracking();
+            setupHabitTracking();
+            
+            // مستمعي الحقول للحساب التلقائي
+            ['waterGlasses', 'coffeeCount', 'teaCount', 'weight', 'height', 'achievement1', 'achievement2', 'achievement3', 'activityEstimate', 'exerciseToday', 'focusLevel', 'comfortZone', 'screenTime', 'bedTime', 'wakeTime', 'biggestChallenge', 'challengeResponse', 'gratitude', 'bestMoment'].forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.addEventListener('input', calculateDailyScore);
+                    element.addEventListener('change', calculateDailyScore);
+                }
+            });
+
+            // مستمع خاص للوزن والطول
+            ['weight', 'height'].forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.addEventListener('input', calculateBMI);
+                }
+            });
+        }
+
+        // تحميل عند بدء الصفحة
+        window.addEventListener('load', function() {
+            setupEventListeners();
+            calculateDailyScore();
+            calculateBMI();
+            updateDisplay();
+            loadWeeklyGoals();
+            
+            // ضبط الثيم
+            if (darkMode) {
+                document.querySelector('.theme-toggle').textContent = '☀️';
+            }
+            
+            // بدء التذكيرات الذكية
+            startSmartReminders();
+            
+            // رسالة ترحيب للمستخدمين الجدد
+            const data = getSavedData();
+            if (data.length === 0) {
+                setTimeout(() => {
+                    showAlert('مرحباً بك في متتبع الحياة الشامل! ابدأ رحلتك نحو حياة أفضل 🌟', 'success');
+                }, 1500);
+            } else if (data.length === 7) {
+                setTimeout(() => {
+                    showAlert('رائع! أسبوع كامل من التتبع. الآن يمكنك إنشاء تقريرك الأسبوعي! 📋', 'success');
+                }, 1000);
+            }
+        });
+    </script>
+</body>
+</html>
