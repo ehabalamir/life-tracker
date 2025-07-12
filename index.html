@@ -742,6 +742,8 @@
             padding: 25px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             border: 1px solid rgba(102, 126, 234, 0.1);
+            position: relative;
+            height: 400px;
         }
 
         .chart-widget h3 {
@@ -750,6 +752,17 @@
             text-align: center;
             font-weight: 700;
             font-size: 1.2rem;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+
+        .chart-widget canvas {
+            max-height: 300px !important;
+            max-width: 100% !important;
         }
 
         .loading-spinner {
@@ -1462,23 +1475,33 @@
                     <div class="charts-container" id="chartsContainer" style="display: none;">
                         <div class="chart-widget">
                             <h3>📈 اتجاه النوم (آخر 30 يوم)</h3>
-                            <canvas id="sleepChart" width="400" height="200"></canvas>
+                            <div class="chart-container">
+                                <canvas id="sleepChart"></canvas>
+                            </div>
                         </div>
                         <div class="chart-widget">
                             <h3>🍽️ التغذية والماء</h3>
-                            <canvas id="nutritionChart" width="400" height="200"></canvas>
+                            <div class="chart-container">
+                                <canvas id="nutritionChart"></canvas>
+                            </div>
                         </div>
                         <div class="chart-widget">
                             <h3>💼 الإنتاجية والتركيز</h3>
-                            <canvas id="productivityChart" width="400" height="200"></canvas>
+                            <div class="chart-container">
+                                <canvas id="productivityChart"></canvas>
+                            </div>
                         </div>
                         <div class="chart-widget">
                             <h3>😊 المزاج والطاقة</h3>
-                            <canvas id="moodChart" width="400" height="200"></canvas>
+                            <div class="chart-container">
+                                <canvas id="moodChart"></canvas>
+                            </div>
                         </div>
                         <div class="chart-widget">
                             <h3>🏆 نقاط الأداء اليومي</h3>
-                            <canvas id="scoreChart" width="400" height="200"></canvas>
+                            <div class="chart-container">
+                                <canvas id="scoreChart"></canvas>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -2284,9 +2307,21 @@
                 return;
             }
 
+            // إعدادات Chart.js العامة
+            Chart.defaults.responsive = true;
+            Chart.defaults.maintainAspectRatio = false;
+
+            // تدمير الرسوم السابقة إذا كانت موجودة
+            Object.values(charts).forEach(chart => {
+                if (chart && typeof chart.destroy === 'function') {
+                    chart.destroy();
+                }
+            });
+            charts = {};
+
             // رسم النوم
             const sleepCtx = document.getElementById('sleepChart');
-            if (sleepCtx && !charts.sleep) {
+            if (sleepCtx) {
                 const last30Days = getLast30Days();
                 const sleepData = last30Days.map(dateKey => {
                     const dayData = allData[dateKey];
@@ -2323,9 +2358,13 @@
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
+                        interaction: {
+                            intersect: false,
+                        },
                         plugins: {
                             legend: {
-                                display: true
+                                display: true,
+                                position: 'top'
                             }
                         },
                         scales: {
@@ -2336,6 +2375,12 @@
                                     display: true,
                                     text: 'الساعات'
                                 }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'التاريخ'
+                                }
                             }
                         }
                     }
@@ -2344,7 +2389,7 @@
 
             // رسم النقاط اليومية
             const scoreCtx = document.getElementById('scoreChart');
-            if (scoreCtx && !charts.score) {
+            if (scoreCtx) {
                 const last14Days = getLast14Days();
                 const scoreData = last14Days.map(dateKey => {
                     const dayData = allData[dateKey];
@@ -2362,7 +2407,7 @@
                             label: 'نقاط الأداء اليومي',
                             data: scoreData,
                             backgroundColor: scoreData.map(score => {
-                                if (!score) return '#e0e0e0';
+                                if (!score || score === 0) return '#e0e0e0';
                                 if (score >= 90) return '#4caf50';
                                 if (score >= 80) return '#8bc34a';
                                 if (score >= 70) return '#ffc107';
@@ -2370,7 +2415,8 @@
                                 return '#f44336';
                             }),
                             borderColor: '#667eea',
-                            borderWidth: 1
+                            borderWidth: 1,
+                            borderRadius: 4
                         }]
                     },
                     options: {
@@ -2389,6 +2435,12 @@
                                     display: true,
                                     text: 'النقاط (%)'
                                 }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'التاريخ'
+                                }
                             }
                         }
                     }
@@ -2397,7 +2449,7 @@
 
             // رسم التغذية والماء
             const nutritionCtx = document.getElementById('nutritionChart');
-            if (nutritionCtx && !charts.nutrition) {
+            if (nutritionCtx) {
                 const last7Days = getLast7Days();
                 const waterData = last7Days.map(dateKey => allData[dateKey]?.water?.glasses || 0);
                 const mealsData = last7Days.map(dateKey => allData[dateKey]?.food?.meals || 0);
@@ -2414,21 +2466,39 @@
                             data: waterData,
                             backgroundColor: 'rgba(116, 185, 255, 0.8)',
                             borderColor: '#74b9ff',
-                            borderWidth: 1
+                            borderWidth: 1,
+                            borderRadius: 4
                         }, {
                             label: 'الوجبات',
                             data: mealsData,
                             backgroundColor: 'rgba(253, 121, 168, 0.8)',
                             borderColor: '#fd79a8',
-                            borderWidth: 1
+                            borderWidth: 1,
+                            borderRadius: 4
                         }]
                     },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'top'
+                            }
+                        },
                         scales: {
                             y: {
-                                beginAtZero: true
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'العدد'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'التاريخ'
+                                }
                             }
                         }
                     }
@@ -2437,7 +2507,7 @@
 
             // رسم الإنتاجية
             const productivityCtx = document.getElementById('productivityChart');
-            if (productivityCtx && !charts.productivity) {
+            if (productivityCtx) {
                 const last7Days = getLast7Days();
                 const workHours = last7Days.map(dateKey => allData[dateKey]?.work?.hours || 0);
                 const focusHours = last7Days.map(dateKey => allData[dateKey]?.work?.focused_hours || 0);
@@ -2454,36 +2524,61 @@
                             data: workHours,
                             borderColor: '#0984e3',
                             backgroundColor: 'rgba(9, 132, 227, 0.1)',
-                            tension: 0.4
+                            tension: 0.4,
+                            fill: true,
+                            pointRadius: 4,
+                            pointHoverRadius: 6
                         }, {
                             label: 'ساعات التركيز',
                             data: focusHours,
                             borderColor: '#00b894',
                             backgroundColor: 'rgba(0, 184, 148, 0.1)',
-                            tension: 0.4
+                            tension: 0.4,
+                            fill: true,
+                            pointRadius: 4,
+                            pointHoverRadius: 6
                         }]
                     },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
+                        interaction: {
+                            intersect: false,
+                        },
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'top'
+                            }
+                        },
                         scales: {
                             y: {
-                                beginAtZero: true
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'الساعات'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'التاريخ'
+                                }
                             }
                         }
                     }
                 });
             }
 
-            // رسم المزاج
+            // رسم المزاج - نغير نوعه من radar إلى line لأنه أفضل
             const moodCtx = document.getElementById('moodChart');
-            if (moodCtx && !charts.mood) {
+            if (moodCtx) {
                 const last7Days = getLast7Days();
                 const moodData = last7Days.map(dateKey => allData[dateKey]?.mood?.average_mood || null);
                 const energyData = last7Days.map(dateKey => allData[dateKey]?.mood?.energy_level || null);
                 
                 charts.mood = new Chart(moodCtx, {
-                    type: 'radar',
+                    type: 'line',
                     data: {
                         labels: last7Days.map(dateKey => {
                             const date = new Date(dateKey);
@@ -2494,22 +2589,49 @@
                             data: moodData,
                             borderColor: '#a29bfe',
                             backgroundColor: 'rgba(162, 155, 254, 0.2)',
-                            pointBackgroundColor: '#a29bfe'
+                            pointBackgroundColor: '#a29bfe',
+                            tension: 0.4,
+                            fill: true,
+                            pointRadius: 4,
+                            pointHoverRadius: 6
                         }, {
                             label: 'الطاقة',
                             data: energyData,
                             borderColor: '#fd79a8',
                             backgroundColor: 'rgba(253, 121, 168, 0.2)',
-                            pointBackgroundColor: '#fd79a8'
+                            pointBackgroundColor: '#fd79a8',
+                            tension: 0.4,
+                            fill: true,
+                            pointRadius: 4,
+                            pointHoverRadius: 6
                         }]
                     },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
+                        interaction: {
+                            intersect: false,
+                        },
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'top'
+                            }
+                        },
                         scales: {
-                            r: {
+                            y: {
                                 beginAtZero: true,
-                                max: 10
+                                max: 10,
+                                title: {
+                                    display: true,
+                                    text: 'التقييم (1-10)'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'التاريخ'
+                                }
                             }
                         }
                     }
